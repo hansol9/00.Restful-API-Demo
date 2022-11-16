@@ -1,7 +1,9 @@
 package com.hansol.restfulapidemo.controller;
 
 import com.hansol.restfulapidemo.events.Event;
+import com.hansol.restfulapidemo.events.EventDto;
 import com.hansol.restfulapidemo.repository.EventRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -21,13 +23,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class EventController {
 
     private final EventRepository eventRepository;
+    private final ModelMapper modelMapper;
 
-    public EventController(EventRepository eventRepository) {
+    public EventController(EventRepository eventRepository, ModelMapper modelMapper) {
         this.eventRepository = eventRepository;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody Event event) {
+    public ResponseEntity createEvent(@RequestBody EventDto eventDto) {
+        Event event = modelMapper.map(eventDto, Event.class);
+
         Event savedEvent = this.eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(savedEvent.getId()).toUri();
 //        event.setId(10);
